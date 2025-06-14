@@ -2,7 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-
 body {
-  font-family: 'Inter', sans-serif; 
+  font-family: theme('fontFamily.sans'); /* Sets the default font to Inter */
+  color: theme('colors.brand-text'); /* Sets the default text color to our dark slate */
+  background-color: theme('colors.brand-background'); /* Sets the default page background to our creamy off-white */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Optional: A helper class for headings if you want to apply them easily */
+.heading-font {
+  font-family: theme('fontFamily.heading'); /* Applies the Poppins font */
 }

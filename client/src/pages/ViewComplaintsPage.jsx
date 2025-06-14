@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import Modal from '../components/Modal';
 
-// Helper object for status explanations
+// Helper object for status explanations, now with updated brand colors
 const statusExplanations = {
   submitted: {
     title: "Complaint Submitted",
@@ -23,7 +23,7 @@ const statusExplanations = {
   legal_notice_drafted: {
     title: "Legal Notice Drafted",
     description: "A legal notice based on your complaint has been prepared and is pending final review before being sent.",
-    color: "bg-indigo-100 text-indigo-800 border-indigo-300"
+    color: "bg-brand-secondary text-brand-headings border-purple-300" // Using brand lavender
   },
   legal_notice_sent: {
     title: "Legal Notice Sent",
@@ -86,7 +86,6 @@ const ViewComplaintsPage = () => {
     }
   };
 
-  // New helper to format status text for display
   const formatStatusText = (status) => {
       if (!status) return 'N/A';
       return status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
@@ -104,7 +103,6 @@ const ViewComplaintsPage = () => {
     const detailsToShow = [
         { label: 'Complaint ID', value: selectedComplaint._id?.slice(-8) || 'N/A' },
         { label: 'Submitted On', value: formatDate(selectedComplaint.submittedAt) },
-        // ... (other fields) ...
         { label: 'Complainant Name', value: selectedComplaint.complainantName },
         { label: 'Contact', value: selectedComplaint.complainantContact },
         { label: 'Email', value: selectedComplaint.complainantEmail },
@@ -128,8 +126,8 @@ const ViewComplaintsPage = () => {
         
             {detailsToShow.map(item => item.value || item.value === 0 || typeof item.value === 'boolean' ? (
                 <div key={item.label} className="grid grid-cols-3 gap-2 border-b border-gray-100 py-2.5 last:border-b-0">
-                    <p className="text-sm font-semibold text-gray-700 col-span-1">{item.label}:</p>
-                    <p className={`text-sm text-gray-800 col-span-2 ${item.pre ? 'whitespace-pre-wrap break-words' : 'break-words'}`}>{String(item.value)}</p>
+                    <p className="text-sm font-semibold text-brand-text col-span-1">{item.label}:</p>
+                    <p className={`text-sm text-brand-text col-span-2 ${item.pre ? 'whitespace-pre-wrap break-words' : 'break-words'}`}>{String(item.value)}</p>
                 </div>
             ) : null)}
         </>
@@ -137,22 +135,22 @@ const ViewComplaintsPage = () => {
   };
 
   if (isLoading) {
-    return <div className="text-center py-10 text-indigo-600 font-semibold animate-pulse">Loading your complaints...</div>;
+    return <div className="text-center py-10 text-brand-primary font-semibold animate-pulse">Loading your complaints...</div>;
   }
 
   return (
     <>
     <div className="bg-white p-6 md:p-8 rounded-xl shadow-2xl max-w-4xl mx-auto animate-fade-in">
-      <h2 className="text-2xl md:text-3xl font-bold text-indigo-700 mb-8 text-center">My Submitted Complaints</h2>
+      <h2 className="text-2xl md:text-3xl font-heading font-bold text-brand-headings mb-8 text-center">My Submitted Complaints</h2>
       
       {error && <Modal message={error} type="error" onClose={() => setError('')} title="Error Fetching Complaints"/>}
 
       {!isLoading && !error && complaints.length === 0 && (
         <div className="text-center py-8">
-            <h3 className="mt-2 text-lg font-medium text-gray-900">No complaints filed yet</h3>
-            <p className="mt-1 text-sm text-gray-500">Get started by filing your first complaint.</p>
+            <h3 className="mt-2 text-lg font-medium text-brand-headings">No complaints filed yet</h3>
+            <p className="mt-1 text-sm text-brand-text">Get started by filing your first complaint.</p>
             <div className="mt-6">
-                <Link to="/new-complaint" className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                <Link to="/new-complaint" className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-brand-primary hover:bg-brand-primary-hover">
                     File New Complaint
                 </Link>
             </div>
@@ -164,7 +162,7 @@ const ViewComplaintsPage = () => {
           {complaints.map((complaint) => (
             <div key={complaint._id} className="border border-gray-200 rounded-lg p-4 md:p-6 shadow-sm hover:shadow-lg transition-shadow duration-300 ease-in-out">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
-                <h3 className="text-lg font-semibold text-indigo-700 mb-2 sm:mb-0">
+                <h3 className="text-lg font-heading font-semibold text-brand-headings mb-2 sm:mb-0">
                   Complaint against: <span className="font-bold">{complaint.companyName || 'N/A'}</span>
                 </h3>
                 <span className={`text-xs font-semibold mr-2 px-3 py-1 rounded-full border ${getStatusClass(complaint.status)}`}>
@@ -172,14 +170,11 @@ const ViewComplaintsPage = () => {
                 </span>
               </div>
               <p className="text-sm text-gray-500 mb-1"><strong>Submitted:</strong> {formatDate(complaint.submittedAt)}</p>
-              <p className="text-sm text-gray-700 mb-3 truncate"><strong>Issues:</strong> {complaint.issuesFaced?.map(formatStatusText).join(', ') || 'N/A'}</p>
+              <p className="text-sm text-brand-text mb-3 truncate"><strong>Issues:</strong> {complaint.issuesFaced?.map(formatStatusText).join(', ') || 'N/A'}</p>
               <button 
-                onClick={() => {
-                  console.log("Button clicked. Complaint object:", complaint); // <-- ADD THIS DEBUG LINE
-                  setSelectedComplaint(complaint);
-                }}
-                className="text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors focus:outline-none hover:underline"
->
+                onClick={() => setSelectedComplaint(complaint)}
+                className="text-sm text-brand-primary hover:text-brand-primary-hover font-medium transition-colors focus:outline-none hover:underline"
+              >
                 View Full Details & Status
               </button>
             </div>
