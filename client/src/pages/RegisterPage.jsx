@@ -1,11 +1,8 @@
-// client/src/pages/RegisterPage.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext'; // Or direct axios call
+import { useAuth } from '../contexts/AuthContext';
 import Modal from '../components/Modal';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-
+import Spinner from '../components/Spinner'; // <<< 1. IMPORT THE SPINNER COMPONENT
 
 const RegisterPage = () => {
   const [email, setEmail] = useState('');
@@ -16,7 +13,7 @@ const RegisterPage = () => {
   const [modalMessage, setModalMessage] = useState('');
   const [modalType, setModalType] = useState('info');
   const navigate = useNavigate();
-  // const { register } = useAuth(); // If register function is in AuthContext
+  const { register } = useAuth(); // <<< 2. USE THE REGISTER FUNCTION FROM AUTHCONTEXT
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -35,31 +32,18 @@ const RegisterPage = () => {
 
     setIsLoading(true);
     try {
-      // Using axios directly here for register, as AuthContext's register might not handle this specific flow
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        const errorMessage = data.error || data.errors?.map(e => e.msg).join(', ') || 'Registration failed.';
-        throw new Error(errorMessage);
-      }
+      const data = await register(email, password); // <<< 3. CALL THE REGISTER FUNCTION FROM CONTEXT
       
       setModalMessage(data.message || 'Registration request successful! Please check your email to activate your account.');
       setModalType('success');
       setEmail('');
       setPassword('');
       setConfirmPassword('');
-      // Don't navigate to login immediately, user needs to activate.
-      // setTimeout(() => {
-      //   setModalMessage(''); 
-      // }, 5000); // Keep message for a bit
+      // Don't navigate away, let the user see the success message.
 
     } catch (err) {
-      setFormError(err.message);
+      const errorMessage = err.error || err.errors?.map(e => e.msg).join(', ') || err.message || 'Registration failed. Please try again.';
+      setFormError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -113,12 +97,19 @@ const RegisterPage = () => {
                           autoComplete="new-password"
                       />
                   </div>
+                  
+                  {/* --- 4. UPDATED BUTTON WITH SPINNER --- */}
                   <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-300 disabled:opacity-50"
+                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-300 disabled:opacity-50 flex items-center justify-center"
                   >
-                      {isLoading ? 'Registering...' : 'Register'}
+                      {isLoading ? (
+                        <>
+                          <Spinner />
+                          <span>Registering...</span>
+                        </>
+                      ) : 'Register'}
                   </button>
               </form>
               <p className="text-center text-sm text-gray-600 mt-8">

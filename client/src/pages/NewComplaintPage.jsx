@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import Modal from '../components/Modal'; // Assuming Modal component is in components folder
+import Modal from '../components/Modal';
+import Spinner from '../components/Spinner'; // <<< 1. IMPORT THE SPINNER COMPONENT
 
 const NewComplaintPage = () => {
   const { authAxios } = useAuth();
@@ -10,19 +11,16 @@ const NewComplaintPage = () => {
   const initialFormData = {
     complainantName: '',
     complainantContact: '',
-    complainantEmail: '', // New field
+    complainantEmail: '',
     companyName: '',
     companyAddress: '',
     dateOfJoining: '',
-    // employmentType: 'permanent', // Removed, as not in your new list. Add back if needed.
     expectedDeliveryDate: '',
     actualDeliveryDate: '',
-    // isAdoptiveOrCommissioning: 'no', // Removed, as not in your new list. Add back if related to pregnancy question.
-    // adoptionDate: '', // Removed
-    numberOfSurvivingChildren: '0', // Kept for leave calculation relevancy
-    issuesFaced: [], // New: for multiple checkboxes
-    additionalInputs: '', // Renamed from chronologyOfEvents for broader scope
-    supportingDocumentsInfo: '', // Label will be updated
+    numberOfSurvivingChildren: '0',
+    issuesFaced: [],
+    additionalInputs: '',
+    supportingDocumentsInfo: '',
     consentToShare: false,
   };
 
@@ -39,7 +37,7 @@ const NewComplaintPage = () => {
     { value: "termination_dismissal", label: "Termination or Dismissal due to Pregnancy/Maternity" },
     { value: "forceful_resignation", label: "Forceful Resignation due to Maternity/Pregnancy" },
     { value: "unfavorable_treatment_post_resuming", label: "Unfavourable Treatment post resuming work" },
-    { value: "other_issue", label: "Other (Please specify in detailed description)" }
+    { value: "other_issue", label: "Other (Please specify in additional inputs)" }
   ];
 
   const handleChange = (e) => {
@@ -150,7 +148,8 @@ const NewComplaintPage = () => {
             {formErrors.complainantName && <p className={errorTextClass}>{formErrors.complainantName}</p>}
           </div>
 
-          {/* Contact Number */}
+          {/* ... (All your other form fields go here, no changes needed to them) ... */}
+           {/* Contact Number */}
           <div>
             <label htmlFor="complainantContact" className="block text-sm font-medium text-gray-700 mb-1">Contact Number (10 digits) <span className="text-red-500">*</span></label>
             <input type="tel" name="complainantContact" id="complainantContact" value={formData.complainantContact} onChange={handleChange} pattern="[6-9]\d{9}" maxLength="10" placeholder="e.g., 9876543210" className={`${commonInputClass} ${formErrors.complainantContact ? errorBorderClass : normalBorderClass}`} />
@@ -208,26 +207,19 @@ const NewComplaintPage = () => {
           </div>
 
           {/* Issues Faced (Checkboxes) */}
-          <div id="issuesFaced"> {/* Added id for focusing */}
+          <div id="issuesFaced">
             <label className="block text-sm font-medium text-gray-700 mb-2">Issues Faced <span className="text-red-500">*</span></label>
             <div className="space-y-2">
               {issueOptions.map(option => (
                 <label key={option.value} className="flex items-center cursor-pointer p-2 rounded-md hover:bg-gray-50 transition-colors">
-                  <input
-                    type="checkbox"
-                    name="issuesFaced"
-                    value={option.value}
-                    checked={formData.issuesFaced.includes(option.value)}
-                    onChange={handleChange}
-                    className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                  />
+                  <input type="checkbox" name="issuesFaced" value={option.value} checked={formData.issuesFaced.includes(option.value)} onChange={handleChange} className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" />
                   <span className="ml-2 text-sm text-gray-700">{option.label}</span>
                 </label>
               ))}
             </div>
             {formErrors.issuesFaced && <p className={errorTextClass}>{formErrors.issuesFaced}</p>}
           </div>
-                    
+          
           {/* Additional Inputs */}
           <div>
             <label htmlFor="additionalInputs" className="block text-sm font-medium text-gray-700 mb-1">Additional Inputs (Chronology of events, Key Stakeholders, etc.)</label>
@@ -247,7 +239,7 @@ const NewComplaintPage = () => {
             <label htmlFor="consentToShare" className="flex items-start cursor-pointer p-2 rounded-md hover:bg-gray-50 transition-colors">
               <input type="checkbox" id="consentToShare" name="consentToShare" checked={formData.consentToShare} onChange={handleChange} className="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mt-0.5 shrink-0" />
               <span className="ml-3 text-sm text-gray-700">
-                I hereby consent to share the information provided in this form with empaneled legal professionals associated with Maternity Justice Portal for the sole purpose of preparing a legal notice and assisting with my maternity benefit claim. I understand this information will be handled with strict confidentiality. <span className="text-red-500">*</span>
+                I hereby consent to share the information provided in this form with empaneled legal professionals associated with Maternity Matters for the sole purpose of preparing a legal notice and assisting with my maternity benefit claim. I understand this information will be handled with strict confidentiality. <span className="text-red-500">*</span>
               </span>
             </label>
             {formErrors.consentToShare && <p className={`${errorTextClass} ml-8`}>{formErrors.consentToShare}</p>}
@@ -258,15 +250,17 @@ const NewComplaintPage = () => {
             <button type="button" onClick={() => navigate(-1)} className="w-full sm:w-auto px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors shadow-sm">
               Cancel
             </button>
-            <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+            {/* --- 2. UPDATED BUTTON WITH SPINNER LOGIC --- */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-300 disabled:opacity-50 flex items-center justify-center"
+            >
               {isSubmitting ? (
-                <span className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Submitting...
-                </span>
+                <>
+                  <Spinner />
+                  <span>Submitting...</span>
+                </>
               ) : 'Submit Complaint'}
             </button>
           </div>
