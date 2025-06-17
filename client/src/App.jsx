@@ -1,3 +1,4 @@
+// client/src/App.jsx
 import React from 'react';
 import { Routes, Route, Navigate, Link } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
@@ -14,7 +15,8 @@ import NewComplaintPage from './pages/NewComplaintPage';
 import ViewComplaintsPage from './pages/ViewComplaintsPage';
 import AccountActivationPage from './pages/AccountActivationPage';
 import OurProcessPage from './pages/OurProcessPage';
-import AboutUsPage from './pages/AboutUsPage'; // <<< 1. IMPORT THE NEW PAGE
+import AboutUsPage from './pages/AboutUsPage'; 
+import Chatbot from './components/Chatbot';
 import { useAuth } from './contexts/AuthContext';
 
 function App() {
@@ -50,7 +52,7 @@ function App() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/activate-account" element={<AccountActivationPage />} />
           <Route path="/our-process" element={<OurProcessPage />} />
-          <Route path="/about-us" element={<AboutUsPage />} /> {/* <<< 2. ADD THE NEW ROUTE */}
+          <Route path="/about-us" element={<AboutUsPage />} />
           
           {/* Protected Routes */}
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
@@ -68,6 +70,8 @@ function App() {
           } />
         </Routes>
       </main>
+      {/* --- THIS IS THE CORRECTED LINE --- */}
+      <Chatbot />
       <Footer />
     </div>
   );
