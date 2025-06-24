@@ -24,33 +24,39 @@ const SendIcon = () => (
 const Chatbot = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
-        { from: 'ai', text: "Hello! I am MaatriNyay, an AI assistant from Maternity Matters. How can I help you understand your rights under the Indian Maternity Benefit Act?" }
+        // The initial message from the AI.
+        { from: 'ai', text: "Hello! I am MaatriNyay, an AI assistant from Maternity Matters. How can I help you understand your rights under the Indian Maternity Benefit Act? Please note that I am not a legal advisor." }
     ]);
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const chatEndRef = useRef(null);
 
-    // Automatically scroll to the bottom when new messages are added
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
     const handleSendMessage = async (e) => {
         e.preventDefault();
-        const userMessage = inputValue.trim();
-        if (!userMessage) return;
+        const userMessageText = inputValue.trim();
+        if (!userMessageText) return;
 
-        // Add user message to chat
-        setMessages(prev => [...prev, { from: 'user', text: userMessage }]);
+        // Create the new message list immediately for a snappy UI
+        const newMessages = [...messages, { from: 'user', text: userMessageText }];
+        setMessages(newMessages);
         setInputValue('');
         setIsLoading(true);
 
         try {
-            // Send message to backend API
-            const response = await axios.post(`${API_BASE_URL}/ai/chat`, { message: userMessage });
+            // --- THIS IS THE KEY CHANGE ---
+            // We now send the entire history of messages to the backend.
+            const response = await axios.post(`${API_BASE_URL}/ai/chat`, {
+              // The payload is now an object with a 'messages' key, containing the array
+              messages: newMessages 
+            });
+            
             const aiReply = response.data.reply;
 
-            // Add AI reply to chat
+            // Add the new AI reply to the chat
             setMessages(prev => [...prev, { from: 'ai', text: aiReply }]);
         } catch (error) {
             console.error("Chatbot error:", error);
@@ -76,7 +82,7 @@ const Chatbot = () => {
                     {messages.map((msg, index) => (
                         <div key={index} className={`flex my-2 ${msg.from === 'ai' ? 'justify-start' : 'justify-end'}`}>
                             <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-xl ${msg.from === 'ai' ? 'bg-white shadow-sm' : 'bg-brand-primary text-white'} ${msg.isError ? 'bg-red-500 text-white' : ''}`}>
-                                <p className="text-sm">{msg.text}</p>
+                                <p className="text-sm" style={{ whiteSpace: 'pre-wrap' }}>{msg.text}</p>
                             </div>
                         </div>
                     ))}
