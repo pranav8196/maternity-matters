@@ -1,6 +1,7 @@
 // server/routes/complaints.js
 const express = require('express');
 const Complaint = require('../models/Complaint');
+// const Activity = require('../models/Activity'); // <<< REMOVED THIS LINE
 const verifyToken = require('../middleware/verifyToken');
 const { body, validationResult, check } = require('express-validator');
 
@@ -13,12 +14,10 @@ const createComplaintValidationRules = [
     body('complainantEmail').isEmail().withMessage('Valid Email ID is required.').normalizeEmail(),
     body('companyName').notEmpty().withMessage('Company name is required.').trim().escape(),
     body('companyAddress').notEmpty().withMessage('Company address is required.').trim().escape(),
+    body('companyPincode').notEmpty().withMessage('Pincode is required.').isPostalCode('IN').withMessage('Please enter a valid 6-digit Indian Pincode.'),
     body('dateOfJoining').isISO8601().toDate().withMessage('Valid date of joining is required.'),
-    // body('employmentType').optional().trim().escape(), // Add back if needed
     body('expectedDeliveryDate').optional({ checkFalsy: true }).isISO8601().toDate().withMessage('Valid expected delivery date required if provided.'),
     body('actualDeliveryDate').optional({ checkFalsy: true }).isISO8601().toDate().withMessage('Valid actual delivery date required if provided.'),
-    // body('isAdoptiveOrCommissioning').optional().isIn(['yes', 'no']), // Add back if needed
-    // body('adoptionDate').optional({checkFalsy: true}).isISO8601().toDate(), // Add back if needed
     body('numberOfSurvivingChildren').isInt({ min: 0 }).withMessage('Number of surviving children must be a non-negative integer.'),
     body('issuesFaced').isArray({ min: 1 }).withMessage('At least one issue faced must be selected.')
         .custom((issues) => issues.every(issue => typeof issue === 'string' && issue.trim() !== '')).withMessage('Invalid issue format.'),
@@ -40,12 +39,14 @@ router.post('/', verifyToken, createComplaintValidationRules, async (req, res, n
     }
     try {
         const complaintData = { ...req.body, userId: req.userId };
-        // Ensure issuesFaced is an array even if only one is sent (though frontend sends array)
         if (complaintData.issuesFaced && !Array.isArray(complaintData.issuesFaced)) {
             complaintData.issuesFaced = [complaintData.issuesFaced];
         }
         const complaint = new Complaint(complaintData);
         await complaint.save();
+
+        // --- ACTIVITY LOGIC REMOVED FROM HERE ---
+
         res.status(201).json({ message: 'Complaint submitted successfully!', complaintId: complaint._id, complaint });
     } catch (err) {
         next(err);
@@ -84,12 +85,12 @@ router.get('/:id', verifyToken, [
     }
 });
 
-// PUT /api/complaints/:id - Update a specific complaint (simplified update validation here)
-const updateComplaintValidationRules = [ // Define specific rules for update if different
+// PUT /api/complaints/:id - Update a specific complaint
+const updateComplaintValidationRules = [ 
     body('complainantName').optional().notEmpty().withMessage('Complainant name cannot be empty if provided.').trim().escape(),
     body('complainantContact').optional().notEmpty().withMessage('Contact number cannot be empty if provided.').matches(/^[6-9]\d{9}$/).withMessage('Enter a valid 10-digit Indian mobile number.').trim(),
     body('complainantEmail').optional().isEmail().withMessage('Valid Email ID is required if provided.').normalizeEmail(),
-    // ... add optional validations for other updatable fields
+    body('companyPincode').optional().notEmpty().withMessage('Pincode cannot be empty if provided.').isPostalCode('IN').withMessage('Please enter a valid 6-digit Indian Pincode.'),
     body('issuesFaced').optional().isArray({ min: 1 }).withMessage('At least one issue faced must be selected if provided.')
         .custom((issues) => issues.every(issue => typeof issue === 'string' && issue.trim() !== '')).withMessage('Invalid issue format.'),
 ];
@@ -109,23 +110,15 @@ router.put('/:id', verifyToken, [
             return res.status(404).json({ message: 'Complaint not found or you do not have permission to edit it.' });
         }
         
-        // Update allowed fields
-        const allowedUpdates = ['complainantName', 'complainantContact', 'complainantEmail', 'companyName', 'companyAddress', 'dateOfJoining', 'expectedDeliveryDate', 'actualDeliveryDate', 'numberOfSurvivingChildren', 'issuesFaced','additionalInputs', 'supportingDocumentsInfo', 'consentToShare'];
-        // Note: 'consentToShare' update might need careful consideration. Usually not changed post-submission.
-        // Removed employmentType, isAdoptiveOrCommissioning, adoptionDate from allowedUpdates as they are removed from form for now
-
+        const allowedUpdates = ['complainantName', 'complainantContact', 'complainantEmail', 'companyName', 'companyAddress', 'companyPincode', 'dateOfJoining', 'expectedDeliveryDate', 'actualDeliveryDate', 'numberOfSurvivingChildren', 'issuesFaced','additionalInputs', 'supportingDocumentsInfo', 'consentToShare'];
+        
         let hasUpdates = false;
         allowedUpdates.forEach(key => {
-            if (req.body[key] !== undefined ) { // Update if key exists in body, even if value is same (e.g. for array/object changes)
+            if (req.body[key] !== undefined ) {
                 complaint[key] = req.body[key];
                 hasUpdates = true;
             }
         });
-
-        if (!hasUpdates && Object.keys(req.body).length > 0) { // Check if body had keys but none were allowed/changed
-             // Or if you want to allow saving even if no fields changed:
-            // return res.status(200).json({ message: 'No actual changes detected to update.', complaint });
-        }
         
         complaint.updatedAt = Date.now();
         const updatedComplaint = await complaint.save();

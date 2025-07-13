@@ -3,9 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 import Spinner from '../components/Spinner';
-
-// The Modal component import is no longer needed
-// import Modal from '../components/Modal';
+import GoogleLoginButton from '../components/GoogleLoginButton'; // <<< 1. IMPORT THE GOOGLE LOGIN BUTTON
 
 const RegisterPage = () => {
   const [email, setEmail] = useState('');
@@ -60,8 +58,20 @@ const RegisterPage = () => {
     <>
       <div className="flex flex-col items-center justify-center py-8 animate-fade-in">
           <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-2xl">
-              {/* --- MODIFIED LINE: Updated font and color --- */}
-              <h2 className="text-3xl font-heading font-bold text-center text-brand-headings mb-8">Create Your Account</h2>
+              <h2 className="text-3xl font-heading font-bold text-center text-brand-headings mb-6">Create Your Account</h2>
+              
+              {/* --- 2. ADD THE GOOGLE LOGIN BUTTON HERE --- */}
+              <div className="mb-6">
+                <GoogleLoginButton />
+              </div>
+
+              {/* --- 3. ADD A VISUAL SEPARATOR --- */}
+              <div className="relative flex py-5 items-center">
+                  <div className="flex-grow border-t border-gray-300"></div>
+                  <span className="flex-shrink mx-4 text-gray-400 text-sm">OR</span>
+                  <div className="flex-grow border-t border-gray-300"></div>
+              </div>
+
               {formError && (
                 <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded relative mb-4 text-sm" role="alert">
                     <strong className="font-bold">Error: </strong>
@@ -70,7 +80,6 @@ const RegisterPage = () => {
               )}
               <form onSubmit={handleRegister} className="space-y-6">
                   <div>
-                      {/* --- MODIFIED LINE: Updated text color --- */}
                       <label className="block text-sm font-medium text-brand-text mb-1" htmlFor="register-email">Email Address</label>
                       <input
                           id="register-email"
@@ -78,14 +87,12 @@ const RegisterPage = () => {
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
-                          // --- MODIFIED LINE: Updated focus colors and error border logic ---
                           className={`w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-brand-primary focus:border-brand-primary transition-colors ${formError.includes('email') ? 'border-red-500' : 'border-gray-300'}`}
                           placeholder="you@example.com"
                           autoComplete="email"
                       />
                   </div>
                   <div>
-                      {/* --- MODIFIED LINE: Updated text color --- */}
                       <label className="block text-sm font-medium text-brand-text mb-1" htmlFor="register-password">Password</label>
                       <input
                           id="register-password"
@@ -93,7 +100,6 @@ const RegisterPage = () => {
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           required
-                          // --- MODIFIED LINE: Updated focus colors and error border logic ---
                           className={`w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-brand-primary focus:border-brand-primary transition-colors ${formError ? 'border-red-500' : 'border-gray-300'}`}
                           placeholder="••••••••"
                           autoComplete="new-password"
@@ -101,7 +107,6 @@ const RegisterPage = () => {
                        <p className="text-xs text-gray-500 mt-1">Password must be at least 6 characters.</p>
                   </div>
                   <div>
-                      {/* --- MODIFIED LINE: Updated text color --- */}
                       <label className="block text-sm font-medium text-brand-text mb-1" htmlFor="register-confirm-password">Confirm Password</label>
                       <input
                           id="register-confirm-password"
@@ -109,14 +114,12 @@ const RegisterPage = () => {
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
                           required
-                           // --- MODIFIED LINE: Updated focus colors and error border logic ---
                           className={`w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-brand-primary focus:border-brand-primary transition-colors ${formError.includes('match') ? 'border-red-500' : 'border-gray-300'}`}
                           placeholder="••••••••"
                           autoComplete="new-password"
                       />
                   </div>
                   
-                  {/* --- MODIFIED LINE: Updated button colors --- */}
                   <button
                       type="submit"
                       disabled={isLoading}
@@ -127,12 +130,11 @@ const RegisterPage = () => {
                           <Spinner />
                           <span>Registering...</span>
                         </>
-                      ) : 'Register'}
+                      ) : 'Register with Email'}
                   </button>
               </form>
               <p className="text-center text-sm text-brand-text mt-8">
                   Already have an account?{' '}
-                  {/* --- MODIFIED LINE: Updated link colors --- */}
                   <Link to="/login" className="font-medium text-brand-primary hover:text-brand-primary-hover transition-colors">
                       Login here
                   </Link>
