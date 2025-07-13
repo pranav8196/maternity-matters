@@ -1,8 +1,7 @@
-// client/src/components/Navbar.jsx
-
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import logo from '../assets/newlogocopy.png'; // <<< 1. IMPORT YOUR LOGO
 
 // --- SVG Icons ---
 const HomeIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-1"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h7.5" /></svg>;
@@ -26,8 +25,9 @@ const Navbar = () => {
     <nav className="bg-white shadow-md sticky top-0 z-40">
       <div className="container mx-auto px-4 sm:px-6 py-3 flex flex-wrap justify-between items-center">
         
-        <Link to={currentUser ? "/dashboard" : "/"} className="text-xl sm:text-2xl font-heading font-bold text-brand-primary hover:opacity-80 transition-opacity">
-          Maternity Matters
+        {/* --- 2. THIS LINK IS NOW AN IMAGE --- */}
+        <Link to={currentUser ? "/dashboard" : "/"} className="hover:opacity-80 transition-opacity">
+          <img src={logo} alt="Maternity Matters Logo" className="h-14" />
         </Link>
 
         <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4 mt-2 sm:mt-0">
@@ -43,7 +43,6 @@ const Navbar = () => {
             <>
               <Link to="/" className={navLinkClasses}>Home</Link>
               <Link to="/our-process" className={navLinkClasses}>Our Process</Link>
-              {/* --- ADDED THIS LINK --- */}
               <Link to="/about-us" className={navLinkClasses}>About Us</Link>
               <Link to="/login" className={navLinkClasses}>Login</Link>
               <Link to="/register" className={buttonLinkClasses}>Register</Link>
