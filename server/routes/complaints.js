@@ -1,13 +1,13 @@
 // server/routes/complaints.js
 const express = require('express');
 const Complaint = require('../models/Complaint');
-// const Activity = require('../models/Activity'); // <<< REMOVED THIS LINE
 const verifyToken = require('../middleware/verifyToken');
 const { body, validationResult, check } = require('express-validator');
+const sendEmail = require('../utils/mailer'); // <<< 1. IMPORT THE EMAIL UTILITY
 
 const router = express.Router();
 
-// Updated validation rules for creating a complaint
+// Validation rules (no changes needed here)
 const createComplaintValidationRules = [
     body('complainantName').notEmpty().withMessage('Complainant name is required.').trim().escape(),
     body('complainantContact').notEmpty().withMessage('Contact number is required.').matches(/^[6-9]\d{9}$/).withMessage('Enter a valid 10-digit Indian mobile number.').trim(),
@@ -45,7 +45,26 @@ router.post('/', verifyToken, createComplaintValidationRules, async (req, res, n
         const complaint = new Complaint(complaintData);
         await complaint.save();
 
-        // --- ACTIVITY LOGIC REMOVED FROM HERE ---
+        // --- 2. ADDED LOGIC TO SEND CONFIRMATION EMAIL ---
+        try {
+            await sendEmail({
+                to: complaint.complainantEmail,
+                subject: `Complaint Received | Maternity Matters (Ref: #${complaint._id.toString().slice(-6)})`,
+                text: `Dear ${complaint.complainantName},\n\nThank you for submitting your complaint. We have successfully received it and assigned it the reference number #${complaint._id.toString().slice(-6)}.\n\nOur legal team will review your submission, and we will provide you with an update within 48 business hours.\n\nYou can view the status of your complaint at any time on your dashboard.\n\nSincerely,\nThe Team at Maternity Matters`,
+                html: `
+                    <p>Dear ${complaint.complainantName},</p>
+                    <p>Thank you for submitting your complaint. We have successfully received it and assigned it the reference number <strong>#${complaint._id.toString().slice(-6)}</strong>.</p>
+                    <p>Our legal team will review your submission, and we will provide you with an update within <strong>48 business hours</strong>.</p>
+                    <p>You can view the status of your complaint at any time on your dashboard.</p>
+                    <p>Sincerely,<br>The Team at Maternity Matters</p>
+                `
+            });
+        } catch (emailError) {
+            // Log the email error but don't fail the entire request,
+            // as the complaint has already been saved successfully.
+            console.error("Failed to send confirmation email, but complaint was saved:", emailError);
+        }
+        // --- End of new logic ---
 
         res.status(201).json({ message: 'Complaint submitted successfully!', complaintId: complaint._id, complaint });
     } catch (err) {
@@ -53,7 +72,9 @@ router.post('/', verifyToken, createComplaintValidationRules, async (req, res, n
     }
 });
 
-// GET /api/complaints/ - Get all complaints for the logged-in user
+// --- NO CHANGES to GET, PUT, or DELETE routes below this line ---
+
+// GET /api/complaints/
 router.get('/', verifyToken, async (req, res, next) => {
     try {
         const complaints = await Complaint.find({ userId: req.userId }).sort({ submittedAt: -1 });
@@ -63,7 +84,7 @@ router.get('/', verifyToken, async (req, res, next) => {
     }
 });
 
-// GET /api/complaints/:id - Get a specific complaint by ID
+// GET /api/complaints/:id
 router.get('/:id', verifyToken, [
     check('id').isMongoId().withMessage('Invalid complaint ID format.')
 ], async (req, res, next) => {
@@ -85,7 +106,7 @@ router.get('/:id', verifyToken, [
     }
 });
 
-// PUT /api/complaints/:id - Update a specific complaint
+// PUT /api/complaints/:id
 const updateComplaintValidationRules = [ 
     body('complainantName').optional().notEmpty().withMessage('Complainant name cannot be empty if provided.').trim().escape(),
     body('complainantContact').optional().notEmpty().withMessage('Contact number cannot be empty if provided.').matches(/^[6-9]\d{9}$/).withMessage('Enter a valid 10-digit Indian mobile number.').trim(),

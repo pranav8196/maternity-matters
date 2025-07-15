@@ -16,8 +16,9 @@ import AccountActivationPage from './pages/AccountActivationPage';
 import OurProcessPage from './pages/OurProcessPage';
 import AboutUsPage from './pages/AboutUsPage'; 
 import Chatbot from './components/Chatbot';
-import PrivacyPolicyPage from './pages/PrivacyPolicyPage'; // <<< 1. IMPORT PRIVACY POLICY
-import TermsOfServicePage from './pages/TermsOfServicePage'; // <<< 2. IMPORT TERMS OF SERVICE
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import TermsOfServicePage from './pages/TermsOfServicePage';
+import WhatsAppButton from './components/WhatsAppButton'; // <<< 1. IMPORT THE NEW COMPONENT
 import { useAuth } from './contexts/AuthContext';
 
 function App() {
@@ -54,8 +55,8 @@ function App() {
           <Route path="/activate-account" element={<AccountActivationPage />} />
           <Route path="/our-process" element={<OurProcessPage />} />
           <Route path="/about-us" element={<AboutUsPage />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} /> {/* <<< 3. ADD ROUTE */}
-          <Route path="/terms-of-service" element={<TermsOfServicePage />} /> {/* <<< 4. ADD ROUTE */}
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms-of-service" element={<TermsOfServicePage />} />
           
           {/* Protected Routes */}
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
@@ -73,6 +74,7 @@ function App() {
           } />
         </Routes>
       </main>
+      <WhatsAppButton /> {/* <<< 2. ADD THE WHATSAPP BUTTON COMPONENT */}
       <Chatbot />
       <Footer />
     </div>
