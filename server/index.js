@@ -39,27 +39,29 @@ const apiLimiter = rateLimit({
 });
 app.use('/api/', apiLimiter);
 
-// --- THIS IS THE UPDATED CORS CONFIGURATION ---
+// --- CORRECTED CORS CONFIGURATION ---
+// This list defines which websites are allowed to make requests to your API.
 const allowedOrigins = [
-    'http://localhost:5173', // Your local development URL
-    process.env.CLIENT_URL    // Your live production URL from the .env file on App Runner
+    'http://localhost:5173', // For your local development
+    process.env.CLIENT_URL    // For your live website on Amplify
 ];
 
-app.use(cors({
+const corsOptions = {
     origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        
-        // Check if the origin is in our allowed list
-        if (allowedOrigins.indexOf(origin) === -1) {
-            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-            return callback(new Error(msg), false);
+        // The 'origin' is the website making the request (e.g., 'https://main.d2nvzagta7ktrt.amplifyapp.com')
+        // We check if this origin is in our allowed list.
+        // We also allow requests that don't have an origin (like from mobile apps or tools like Postman).
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true); // Allow the request
+        } else {
+            callback(new Error('The CORS policy for this site does not allow access from the specified Origin.')); // Block the request
         }
-        return callback(null, true);
     },
     optionsSuccessStatus: 200
-}));
-// --- END OF UPDATED CORS CONFIGURATION ---
+};
+
+app.use(cors(corsOptions));
+// --- END OF CORS CONFIGURATION ---
 
 
 // Core Middlewares
