@@ -113,7 +113,7 @@ router.post('/register', [
   }
 });
 
-// --- MODIFIED ACTIVATION ROUTE WITH DEBUG LOGS ---
+// POST /api/auth/activate-account
 router.post('/activate-account', [
     body('token').notEmpty().withMessage('Activation token is required.')
 ], async (req, res, next) => {
@@ -123,47 +123,25 @@ router.post('/activate-account', [
     }
     const { token } = req.body;
 
-    // --- TEMPORARY DEBUGGING LOGS ---
-    console.log("--- Starting Account Activation ---");
-    console.log("Received token from frontend:", token);
-    console.log("Current server time (Date.now()):", Date.now());
-    // --- END DEBUGGING LOGS ---
-
     try {
         const user = await User.findOne({
             activationToken: token,
             activationTokenExpires: { $gt: Date.now() }
         });
 
-        // --- MORE DEBUGGING LOGS ---
         if (!user) {
-            console.log("User not found with the given token and expiry condition.");
-            // Let's check if the user exists with just the token, to see if it's an expiry issue
-            const userWithTokenOnly = await User.findOne({ activationToken: token });
-            if (userWithTokenOnly) {
-                console.log("Found a user with this token, but they failed the expiry check.");
-                console.log("Token's expiry date in DB:", userWithTokenOnly.activationTokenExpires.getTime());
-                console.log("Is expiry date > current server time?", userWithTokenOnly.activationTokenExpires.getTime() > Date.now());
-            } else {
-                console.log("No user found with this token at all.");
-            }
-            console.log("--- End of Activation Attempt (Failure) ---");
             return res.status(400).json({ error: 'Activation token is invalid or has expired. Please try registering again.' });
         }
-        // --- END DEBUGGING LOGS ---
 
         user.isActive = true;
         user.activationToken = undefined;
         user.activationTokenExpires = undefined;
         await user.save();
         
-        console.log("Successfully activated user:", user.email);
-        console.log("--- End of Activation Attempt (Success) ---");
         res.json({ message: 'Account activated successfully! You can now log in.' });
 
     } catch (err) {
         console.error("Error during activation process:", err);
-        console.log("--- End of Activation Attempt (Error) ---");
         next(err);
     }
 });
