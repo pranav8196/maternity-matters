@@ -4,7 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 
-// 2. Require third-party modules (ALL OF THEM HERE)
+// 2. Require third-party modules
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -13,24 +13,16 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
 
-// 3. Define envPath (uses 'path' module, so 'path' must be required above)
+// 3. Define envPath and configure dotenv
 const envPath = path.resolve(__dirname, '.env');
-
-// 4. Commented out debugging logs
-// ...
-
-// 5. Configure dotenv
 dotenv.config({ path: envPath });
 
-// 6. Commented out debugging logs
-// ...
-
-// 7. Require your local modules (routes) AFTER dotenv has configured process.env
+// 4. Require your local modules (routes)
 const authRoutes = require('./routes/auth');
 const complaintRoutes = require('./routes/complaints');
-const aiRoutes = require('./routes/ai'); // <<< --- 1. IMPORT THE NEW AI ROUTE
+const aiRoutes = require('./routes/ai');
 
-// 8. Initialize Express app
+// 5. Initialize Express app
 const app = express();
 
 // Security Middlewares
@@ -46,11 +38,30 @@ const apiLimiter = rateLimit({
 });
 app.use('/api/', apiLimiter);
 
-// Core Middlewares
+// --- THIS IS THE UPDATED CORS CONFIGURATION ---
+const allowedOrigins = [
+    'http://localhost:5173', // Your local development URL
+    process.env.CLIENT_URL    // Your live production URL from the .env file on App Runner
+];
+
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        // Check if the origin is in our allowed list
+        if (allowedOrigins.indexOf(origin) === -1) {
+            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    },
     optionsSuccessStatus: 200
 }));
+// --- END OF UPDATED CORS CONFIGURATION ---
+
+
+// Core Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -62,11 +73,11 @@ if (process.env.NODE_ENV === 'development') {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/complaints', complaintRoutes);
-app.use('/api/ai', aiRoutes); // <<< --- 2. USE THE NEW AI ROUTE
+app.use('/api/ai', aiRoutes);
 
 // Basic route for testing server status
 app.get('/', (req, res) => {
-  res.send('Maternity Matters API is alive and running!'); // Updated message for branding
+  res.send('Maternity Matters API is alive and running!');
 });
 
 // Database Connection
