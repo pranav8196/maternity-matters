@@ -1,6 +1,10 @@
 // server/index.js
 
-// 1. Require modules
+// 1. Require built-in modules first
+const fs = require('fs');
+const path = require('path');
+
+// 2. Require third-party modules
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -8,18 +12,17 @@ const dotenv = require('dotenv');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
-const path = require('path');
 
-// 2. Configure dotenv
+// 3. Define envPath and configure dotenv
 const envPath = path.resolve(__dirname, '.env');
 dotenv.config({ path: envPath });
 
-// 3. Require your local routes
+// 4. Require your local modules (routes)
 const authRoutes = require('./routes/auth');
 const complaintRoutes = require('./routes/complaints');
 const aiRoutes = require('./routes/ai');
 
-// 4. Initialize Express app
+// 5. Initialize Express app
 const app = express();
 app.set('trust proxy', 1);
 
@@ -36,13 +39,30 @@ const apiLimiter = rateLimit({
 });
 app.use('/api/', apiLimiter);
 
-// --- PRODUCTION-FOCUSED CORS CONFIGURATION ---
-// This will only allow requests from the URL you set in your App Runner environment variables.
-app.use(cors({
-    origin: process.env.CLIENT_URL,
+// --- THIS IS THE UPDATED CORS CONFIGURATION ---
+// This list defines which websites are allowed to make requests to your API.
+const allowedOrigins = [
+    'http://localhost:5173', // For your local development
+    process.env.CLIENT_URL    // For your live website on Amplify
+];
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        // The 'origin' is the website making the request (e.g., 'https://main.d2nvzagta7ktrt.amplifyapp.com')
+        // We check if this origin is in our allowed list.
+        // We also allow requests that don't have an origin (like from mobile apps or tools like Postman).
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true); // Allow the request
+        } else {
+            callback(new Error('The CORS policy for this site does not allow access from the specified Origin.')); // Block the request
+        }
+    },
     optionsSuccessStatus: 200
-}));
+};
+
+app.use(cors(corsOptions));
 // --- END OF CORS CONFIGURATION ---
+
 
 // Core Middlewares
 app.use(express.json());
