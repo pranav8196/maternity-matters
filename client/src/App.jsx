@@ -1,4 +1,6 @@
-import React from 'react';
+// File: client/src/App.jsx
+
+import React, { useState, useEffect } from 'react'; // Import useState and useEffect
 import { Routes, Route, Navigate, Link } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
@@ -18,11 +20,33 @@ import AboutUsPage from './pages/AboutUsPage';
 import Chatbot from './components/Chatbot';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfServicePage from './pages/TermsOfServicePage';
-import WhatsAppButton from './components/WhatsAppButton'; // <<< 1. IMPORT THE NEW COMPONENT
+import WhatsAppButton from './components/WhatsAppButton';
+import DisclaimerBanner from './components/DisclaimerBanner'; // <<< 1. IMPORT THE NEW COMPONENT
 import { useAuth } from './contexts/AuthContext';
 
 function App() {
   const { currentUser, loading } = useAuth();
+  const [showDisclaimer, setShowDisclaimer] = useState(false); // <<< 2. ADD STATE FOR THE BANNER
+
+  useEffect(() => {
+    // Check if the user has already accepted the disclaimer in this session
+    const hasAccepted = sessionStorage.getItem('disclaimerAccepted');
+    if (hasAccepted !== 'true') {
+      setShowDisclaimer(true);
+    }
+  }, []);
+
+  const handleAcceptDisclaimer = () => {
+    // Use sessionStorage to remember the choice only for the current browser session
+    sessionStorage.setItem('disclaimerAccepted', 'true');
+    setShowDisclaimer(false);
+  };
+
+  const handleDeclineDisclaimer = () => {
+    // This will attempt to take the user back to the previous page they were on (e.g., Google search results)
+    // If there is no previous page, it will not do anything.
+    window.history.back();
+  };
 
   if (loading) {
     return (
@@ -46,7 +70,7 @@ function App() {
       <Navbar />
       <main className="flex-grow">
         <Routes>
-          {/* Public Routes */}
+          {/* All your routes go here as before */}
           <Route path="/" element={currentUser ? <Navigate to="/dashboard" replace /> : <HomePage />} />
           <Route path="/login" element={!currentUser ? <LoginPage /> : <Navigate to="/dashboard" replace />} />
           <Route path="/register" element={!currentUser ? <RegisterPage /> : <Navigate to="/dashboard" replace />} />
@@ -57,12 +81,9 @@ function App() {
           <Route path="/about-us" element={<AboutUsPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-          
-          {/* Protected Routes */}
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
           <Route path="/new-complaint" element={<ProtectedRoute><NewComplaintPage /></ProtectedRoute>} />
           <Route path="/complaints" element={<ProtectedRoute><ViewComplaintsPage /></ProtectedRoute>} />
-          
           <Route path="*" element={
             <div className="text-center py-10 container mx-auto px-4">
               <h2 className="text-3xl font-bold text-brand-primary">404: Page Not Found</h2>
@@ -74,9 +95,12 @@ function App() {
           } />
         </Routes>
       </main>
-      <WhatsAppButton /> {/* <<< 2. ADD THE WHATSAPP BUTTON COMPONENT */}
+      <WhatsAppButton />
       <Chatbot />
       <Footer />
+      
+      {/* --- 3. CONDITIONALLY RENDER THE BANNER --- */}
+      {showDisclaimer && <DisclaimerBanner onAccept={handleAcceptDisclaimer} onDecline={handleDeclineDisclaimer} />}
     </div>
   );
 }
