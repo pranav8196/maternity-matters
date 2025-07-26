@@ -45,7 +45,7 @@ router.post('/', verifyToken, createComplaintValidationRules, async (req, res, n
         const complaint = new Complaint(complaintData);
         await complaint.save();
 
-        // --- UPDATED EMAIL LOGIC WITH NEW HTML TEMPLATE ---
+        // --- UPDATED EMAIL LOGIC WITH NEW SIGNATURE BLOCK ---
         try {
             const logoUrl = 'https://main.d2nvzagta7ktrt.amplifyapp.com/assets/newlogocopy-B_IFVnpb.png';
             const complaintRef = complaint._id.toString().slice(-6).toUpperCase();
@@ -55,20 +55,25 @@ router.post('/', verifyToken, createComplaintValidationRules, async (req, res, n
                 subject: `Complaint Received | Maternity Matters (Ref: #${complaintRef})`,
                 text: `Dear ${complaint.complainantName},\n\nThank you for submitting your complaint. We have successfully received it and assigned it the reference number #${complaintRef}.\n\nOur team will review your submission, and we will provide you with an update within 48 business hours.\n\nYou can view the status of your complaint at any time on your dashboard.\n\nSincerely,\nPranav Deshpande\nHead - Product, Maternity Matters\nEmpowering Mothers, Ensuring Justice`,
                 html: `
-                    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-                        <div style="text-align: center; margin-bottom: 20px;">
-                            <img src="${logoUrl}" alt="Maternity Matters Logo" style="max-width: 200px; height: auto;" />
-                        </div>
+                    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px;">
                         <p>Dear ${complaint.complainantName},</p>
                         <p>Thank you for submitting your complaint. We have successfully received it and assigned it the reference number <strong>#${complaintRef}</strong>.</p>
                         <p>Our team will review your submission, and we will provide you with an update within <strong>48 business hours</strong>.</p>
                         <p>You can view the status of your complaint at any time by logging into your dashboard.</p>
                         <br>
-                        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
-                            <p style="margin: 0;">Sincerely,</p>
-                            <p style="margin: 0; font-weight: bold;">Pranav Deshpande</p>
-                            <p style="margin: 0; color: #555;">Head - Product, Maternity Matters</p>
-                            <p style="margin: 0; font-style: italic; color: #777;">Empowering Mothers, Ensuring Justice</p>
+                        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="width: 120px; vertical-align: top;">
+                                        <img src="${logoUrl}" alt="Maternity Matters Logo" style="width: 100px; height: auto;" />
+                                    </td>
+                                    <td style="vertical-align: top; padding-left: 20px;">
+                                        <p style="margin: 0; font-weight: bold;">Pranav Deshpande</p>
+                                        <p style="margin: 0; color: #555;">Head - Product, Maternity Matters</p>
+                                        <p style="margin: 0; font-style: italic; color: #777;">Empowering Mothers, Ensuring Justice</p>
+                                    </td>
+                                </tr>
+                            </table>
                         </div>
                     </div>
                 `
