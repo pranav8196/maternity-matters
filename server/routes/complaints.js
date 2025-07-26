@@ -3,7 +3,7 @@ const express = require('express');
 const Complaint = require('../models/Complaint');
 const verifyToken = require('../middleware/verifyToken');
 const { body, validationResult, check } = require('express-validator');
-const sendEmail = require('../utils/mailer'); // <<< 1. IMPORT THE EMAIL UTILITY
+const sendEmail = require('../utils/mailer');
 
 const router = express.Router();
 
@@ -45,26 +45,38 @@ router.post('/', verifyToken, createComplaintValidationRules, async (req, res, n
         const complaint = new Complaint(complaintData);
         await complaint.save();
 
-        // --- 2. ADDED LOGIC TO SEND CONFIRMATION EMAIL ---
+        // --- UPDATED EMAIL LOGIC WITH NEW HTML TEMPLATE ---
         try {
+            const logoUrl = 'https://main.d2nvzagta7ktrt.amplifyapp.com/assets/newlogocopy-B_IFVnpb.png';
+            const complaintRef = complaint._id.toString().slice(-6).toUpperCase();
+
             await sendEmail({
                 to: complaint.complainantEmail,
-                subject: `Complaint Received | Maternity Matters (Ref: #${complaint._id.toString().slice(-6)})`,
-                text: `Dear ${complaint.complainantName},\n\nThank you for submitting your complaint. We have successfully received it and assigned it the reference number #${complaint._id.toString().slice(-6)}.\n\nOur legal team will review your submission, and we will provide you with an update within 48 business hours.\n\nYou can view the status of your complaint at any time on your dashboard.\n\nSincerely,\nThe Team at Maternity Matters`,
+                subject: `Complaint Received | Maternity Matters (Ref: #${complaintRef})`,
+                text: `Dear ${complaint.complainantName},\n\nThank you for submitting your complaint. We have successfully received it and assigned it the reference number #${complaintRef}.\n\nOur team will review your submission, and we will provide you with an update within 48 business hours.\n\nYou can view the status of your complaint at any time on your dashboard.\n\nSincerely,\nPranav Deshpande\nHead - Product, Maternity Matters\nEmpowering Mothers, Ensuring Justice`,
                 html: `
-                    <p>Dear ${complaint.complainantName},</p>
-                    <p>Thank you for submitting your complaint. We have successfully received it and assigned it the reference number <strong>#${complaint._id.toString().slice(-6)}</strong>.</p>
-                    <p>Our legal team will review your submission, and we will provide you with an update within <strong>48 business hours</strong>.</p>
-                    <p>You can view the status of your complaint at any time on your dashboard.</p>
-                    <p>Sincerely,<br>The Team at Maternity Matters</p>
+                    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <img src="${logoUrl}" alt="Maternity Matters Logo" style="max-width: 200px; height: auto;" />
+                        </div>
+                        <p>Dear ${complaint.complainantName},</p>
+                        <p>Thank you for submitting your complaint. We have successfully received it and assigned it the reference number <strong>#${complaintRef}</strong>.</p>
+                        <p>Our team will review your submission, and we will provide you with an update within <strong>48 business hours</strong>.</p>
+                        <p>You can view the status of your complaint at any time by logging into your dashboard.</p>
+                        <br>
+                        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
+                            <p style="margin: 0;">Sincerely,</p>
+                            <p style="margin: 0; font-weight: bold;">Pranav Deshpande</p>
+                            <p style="margin: 0; color: #555;">Head - Product, Maternity Matters</p>
+                            <p style="margin: 0; font-style: italic; color: #777;">Empowering Mothers, Ensuring Justice</p>
+                        </div>
+                    </div>
                 `
             });
         } catch (emailError) {
-            // Log the email error but don't fail the entire request,
-            // as the complaint has already been saved successfully.
             console.error("Failed to send confirmation email, but complaint was saved:", emailError);
         }
-        // --- End of new logic ---
+        // --- End of updated logic ---
 
         res.status(201).json({ message: 'Complaint submitted successfully!', complaintId: complaint._id, complaint });
     } catch (err) {
