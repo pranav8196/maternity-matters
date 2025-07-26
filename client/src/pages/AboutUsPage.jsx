@@ -33,9 +33,31 @@ const AboutUsPage = () => {
             <StatCard value="40%" label="reported that taking maternity leave negatively impacted their pay upon their return." />
             <StatCard value="Hiring Bias" label="exists, with some studies showing women became less likely to receive interview calls after the leave was extended." />
           </div>
-           <p className="mt-8 text-xs text-gray-500">Khetarpal, Sonal, "Did better maternity leave disadvantage Indian women in jobs? Study says…", India Today, Feb 11, 2025, https://www.indiatoday.in/india-today-insight/story/did-better-maternity-leave-disadvantage-indian-women-in-jobs-study-says-2678224-2025-02-11 </p>
-           <p className="mt-8 text-xs text-gray-500">Kumar, Abhijeet, "Bias, maternity leave setbacks stall women's growth at workplace: Report", Business Standard, Aug 08, 2024, https://www.business-standard.com/india-news/bias-maternity-leave-setbacks-stall-women-s-growth-at-workplace-report-124080801011_1.html </p>
-           <p className="mt-8 text-xs text-gray-500">Aon. (2024). Voice of Women: The Largest Pan-India Study of Working Women. Retrieved from https://www.aon.com/apac/asia/voice-of-women-2024-25#dl_form </p>
+
+          {/* --- THIS IS THE UPDATED SECTION WITH CLICKABLE LINKS --- */}
+          <div className="mt-8 text-xs text-gray-500 text-left max-w-3xl mx-auto">
+              <p className="font-semibold mb-2">Sources:</p>
+              <ul className="list-disc list-inside space-y-2">
+                  <li>
+                      Khetarpal, Sonal, "Did better maternity leave disadvantage Indian women in jobs? Study says…", India Today. 
+                      <a href="https://www.indiatoday.in/india-today-insight/story/did-better-maternity-leave-disadvantage-indian-women-in-jobs-study-says-2678224-2025-02-11" target="_blank" rel="noopener noreferrer" className="text-brand-primary hover:underline ml-1">
+                          [Link]
+                      </a>
+                  </li>
+                  <li>
+                      Kumar, Abhijeet, "Bias, maternity leave setbacks stall women's growth at workplace: Report", Business Standard. 
+                      <a href="https://www.business-standard.com/india-news/bias-maternity-leave-setbacks-stall-women-s-growth-at-workplace-report-124080801011_1.html" target="_blank" rel="noopener noreferrer" className="text-brand-primary hover:underline ml-1">
+                          [Link]
+                      </a>
+                  </li>
+                  <li>
+                      Aon. (2024). Voice of Women: The Largest Pan-India Study of Working Women. Retrieved from 
+                      <a href="https://www.aon.com/apac/asia/voice-of-women-2024-25#dl_form" target="_blank" rel="noopener noreferrer" className="text-brand-primary hover:underline ml-1">
+                          Aon.com
+                      </a>.
+                  </li>
+              </ul>
+          </div>
         </div>
       </section>
 
@@ -49,7 +71,7 @@ const AboutUsPage = () => {
                 Maternity Matters was born from a simple conversation between a passionate lawyer and a tech expert. We saw a recurring problem: countless women, despite having legal rights, were struggling to secure them due to lack of awareness, fear of confrontation, and complex procedures.
               </p>
               <p>
-                We realized that technology could be a powerful equalizer. By creating a simple, secure, and supportive online platform, we could demystify the legal process and provide the crucial first step—a formal legal notice—to women who might otherwise feel powerless. Our goal is to bridge the gap between rights on paper and justice in reality.
+                We realized that technology could be a powerful equalizer. By creating a simple, secure, and supportive online platform, we could demystify the legal process and provide assitance throughout the maternity rights denial process, to all women who might otherwise feel powerless. Our goal is to bridge the gap between rights on paper and justice in reality.
               </p>
             </div>
           </div>
