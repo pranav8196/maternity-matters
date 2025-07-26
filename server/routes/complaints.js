@@ -55,7 +55,7 @@ router.post('/', verifyToken, createComplaintValidationRules, async (req, res, n
                 subject: `Complaint Received | Maternity Matters (Ref: #${complaintRef})`,
                 text: `Dear ${complaint.complainantName},\n\nThank you for submitting your complaint. We have successfully received it and assigned it the reference number #${complaintRef}.\n\nOur team will review your submission, and we will provide you with an update within 48 business hours.\n\nYou can view the status of your complaint at any time on your dashboard.\n\nSincerely,\nPranav Deshpande\nHead - Product, Maternity Matters\nEmpowering Mothers, Ensuring Justice`,
                 html: `
-                    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px;">
+                    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; border: 1px solid #eee; padding: 20px;">
                         <p>Dear ${complaint.complainantName},</p>
                         <p>Thank you for submitting your complaint. We have successfully received it and assigned it the reference number <strong>#${complaintRef}</strong>.</p>
                         <p>Our team will review your submission, and we will provide you with an update within <strong>48 business hours</strong>.</p>
