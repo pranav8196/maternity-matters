@@ -299,7 +299,7 @@ const NewComplaintPage = () => {
                                 <label htmlFor="consentToShare" className="flex items-start cursor-pointer p-2 rounded-md hover:bg-gray-50 transition-colors">
                                     <input type="checkbox" id="consentToShare" name="consentToShare" checked={formData.consentToShare} onChange={handleChange} className="h-5 w-5 text-brand-primary border-gray-300 rounded focus:ring-brand-primary mt-0.5 shrink-0" />
                                     <span className="ml-3 text-sm text-brand-text">
-                                        I hereby consent to share the information provided in this form with empaneled legal professionals for the sole purpose of preparing a legal notice and assisting with my maternity benefit claim. <span className="text-red-500">*</span>
+                                        I hereby consent to share the information provided in this form with our team members for the sole purpose of contacting you via WhatsApp, Telephonic Call, SM and/or E-mail, so as to decide the best strategy. <span className="text-red-500">*</span>
                                     </span>
                                 </label>
                                 {formErrors.consentToShare && <p className={`${errorTextClass} ml-8`}>{formErrors.consentToShare}</p>}
