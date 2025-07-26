@@ -21,18 +21,19 @@ const DisclaimerBanner = ({ onAccept, onDecline }) => {
           </p>
         </div>
 
+        {/* --- THIS IS THE CORRECTED BUTTON ORDER --- */}
         <div className="flex justify-end gap-4 mt-6 pt-4 border-t border-gray-200">
-          <button
-            onClick={onDecline}
-            className="bg-slate-600 hover:bg-slate-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
-          >
-            Decline
-          </button>
           <button
             onClick={onAccept}
             className="bg-brand-primary hover:bg-brand-primary-hover text-white font-semibold py-2 px-6 rounded-lg transition-colors"
           >
             Accept
+          </button>
+          <button
+            onClick={onDecline}
+            className="bg-slate-600 hover:bg-slate-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+          >
+            Decline
           </button>
         </div>
       </div>

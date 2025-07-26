@@ -1,6 +1,6 @@
 // File: client/src/App.jsx
 
-import React, { useState, useEffect } from 'react'; // Import useState and useEffect
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, Link } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
@@ -21,15 +21,14 @@ import Chatbot from './components/Chatbot';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfServicePage from './pages/TermsOfServicePage';
 import WhatsAppButton from './components/WhatsAppButton';
-import DisclaimerBanner from './components/DisclaimerBanner'; // <<< 1. IMPORT THE NEW COMPONENT
+import DisclaimerBanner from './components/DisclaimerBanner';
 import { useAuth } from './contexts/AuthContext';
 
 function App() {
   const { currentUser, loading } = useAuth();
-  const [showDisclaimer, setShowDisclaimer] = useState(false); // <<< 2. ADD STATE FOR THE BANNER
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
 
   useEffect(() => {
-    // Check if the user has already accepted the disclaimer in this session
     const hasAccepted = sessionStorage.getItem('disclaimerAccepted');
     if (hasAccepted !== 'true') {
       setShowDisclaimer(true);
@@ -37,15 +36,14 @@ function App() {
   }, []);
 
   const handleAcceptDisclaimer = () => {
-    // Use sessionStorage to remember the choice only for the current browser session
     sessionStorage.setItem('disclaimerAccepted', 'true');
     setShowDisclaimer(false);
   };
 
+  // --- THIS IS THE CORRECTED DECLINE FUNCTION ---
   const handleDeclineDisclaimer = () => {
-    // This will attempt to take the user back to the previous page they were on (e.g., Google search results)
-    // If there is no previous page, it will not do anything.
-    window.history.back();
+    // Redirect to a neutral, external site.
+    window.location.href = 'https://www.google.com';
   };
 
   if (loading) {
@@ -99,7 +97,6 @@ function App() {
       <Chatbot />
       <Footer />
       
-      {/* --- 3. CONDITIONALLY RENDER THE BANNER --- */}
       {showDisclaimer && <DisclaimerBanner onAccept={handleAcceptDisclaimer} onDecline={handleDeclineDisclaimer} />}
     </div>
   );
